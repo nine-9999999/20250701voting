@@ -2,10 +2,45 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8" />
-  <title>夜市投票</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LINE 投票</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 </head>
 <body>
-  <h1>投票系統測試</h1>
-  <p>這是你部署在 GitHub Pages 上的前端頁面 👋</p>
+  <h2>請登入 LINE 開始投票</h2>
+  <button onclick="login()">用 LINE 登入</button>
+  <div id="voteArea" style="display:none;">
+    <p>選擇你最喜歡的攤位：</p>
+    <button onclick="vote('A01')">阿強臭豆腐</button>
+    <button onclick="vote('A02')">爆漿章魚燒</button>
+  </div>
+
+  <script>
+    const scriptEndpoint = "你的 Apps Script API 網址";
+    let userId = "";
+
+    async function login() {
+      await liff.init({ liffId: "你的 LIFF ID" });
+      if (!liff.isLoggedIn()) {
+        liff.login();
+        return;
+      }
+      const profile = await liff.getProfile();
+      userId = profile.userId;
+      document.querySelector("#voteArea").style.display = "block";
+    }
+
+    async function vote(stallId) {
+      const res = await fetch(scriptEndpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, stallId }),
+      });
+      const result = await res.json();
+      alert(result.message);
+    }
+
+    login(); // 自動初始化
+  </script>
 </body>
 </html>
